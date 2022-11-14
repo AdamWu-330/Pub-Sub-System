@@ -16,11 +16,19 @@ import (
 )
 
 type Response struct {
-	ID        string  `json:"ID"`
-	Latitude  float32 `json:"Latitude"`
-	Longitude float32 `json:"Longitude"`
-	URL       string  `json:"Url"`
-	CityName  string  `json:"CityName"`
+	ID        			string  `bson:"ID"`
+	Latitude  			float32 `bson:"Latitude"`
+	Longitude 			float32 `bson:"Longitude"`
+	Url       			string  `bson:"Url"`
+	CityName  			string  `bson:"CityName"`
+    Organization 		string `bson:"Organization"`
+    RoadwayName 		string `bson:"RoadwayName"`
+    DirectionOfTravel 	string `bson:"DirectionOfTravel"`
+    Name 				string `bson:"Name"`
+    Status 				string `bson:"Status"`
+    Description 		string `bson:"Description"`
+    Image 				string `bson:"Image"`
+    LastUpdate	 		string `bson:"LastUpdate"`
 }
 
 func main() {
@@ -29,13 +37,13 @@ func main() {
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
-	}
+	} 
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Println(string(responseData))
+    //fmt.Println(string(responseData))
 	// fmt.Printf("type of response: %T\n", responseData)
 
 	responseObjects := make([]Response, 0, 0)
