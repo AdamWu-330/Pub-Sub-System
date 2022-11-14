@@ -14,6 +14,7 @@ import (
 	"os"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -67,7 +68,6 @@ func main() {
 			}
 
 			responseObjects[i].Image = base64.StdEncoding.EncodeToString(bytes)
-			// fmt.Println(responseObjects[i].Image)
 		}
 	}
 
@@ -79,11 +79,6 @@ func main() {
 	time.Sleep(100 * time.Second)
 
 	fmt.Println("finished base64 encoding for images")
-
-	for i := 0; i < len(responseObjects); i++ {
-		responseObjects[i].LastUpdate = time.Now().Format(time.RFC3339)
-		responseObjects[i].LastModified = time.Now().Format(time.RFC3339)
-	}
 
 	// save to mongodb
 	// Set client options
@@ -110,23 +105,58 @@ func main() {
 
 	collection_realtime := client.Database("cvst_pubsub").Collection("cameraCurrent")
 
-	for i := 0; i < len(responseObjects); i++ {
-		// Insert a single document
-		insertResult, err := collection_history.InsertOne(context.TODO(), responseObjects[i])
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("Inserted a single document to history collection: ", insertResult.InsertedID)
-	}
+	// pop last update and last modified fields
+
+	// store which indices from responseObjects have the same content from the history collection, so no need to insert
+	same_indices := make([]int, len(responseObjects), len(responseObjects))
 
 	for i := 0; i < len(responseObjects); i++ {
+		filter := bson.D{{"ID", responseObjects[i].ID}}
+		var result Response
+		err := collection_history.FindOne(context.TODO(), filter).Decode(&result)
+
+		if err != nil && err == mongo.ErrNoDocuments {
+			responseObjects[i].LastUpdate = time.Now().Format(time.RFC3339)
+			responseObjects[i].LastModified = time.Now().Format(time.RFC3339)
+		} else {
+			responseObjects[i].LastUpdate = result.LastUpdate
+			responseObjects[i].LastModified = result.LastModified
+			same_indices[i] = -1
+
+			if result.Image != responseObjects[i].Image {
+				responseObjects[i].LastUpdate = time.Now().Format(time.RFC3339)
+				same_indices[i] = 0
+			} else if result.Name != responseObjects[i].Name || result.Url != responseObjects[i].Url ||
+				result.Status != responseObjects[i].Status || result.Description != responseObjects[i].Description {
+				responseObjects[i].LastModified = time.Now().Format(time.RFC3339)
+				same_indices[i] = 0
+			}
+		}
+
+	}
+
+	// insert to history collection
+	for i := 0; i < len(responseObjects); i++ {
+		if same_indices[i] == -1 {
+			continue
+		}
 		// Insert a single document
-		insertResult, err := collection_realtime.InsertOne(context.TODO(), responseObjects[i])
+		_, err := collection_history.InsertOne(context.TODO(), responseObjects[i])
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Inserted a single document to realtime collection: ", insertResult.InsertedID)
 	}
+	fmt.Println("finished inserting to history collection")
+
+	// insert to realtime collection
+	for i := 0; i < len(responseObjects); i++ {
+		// Insert a single document
+		_, err := collection_realtime.InsertOne(context.TODO(), responseObjects[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("finished inserting to realtime collection")
 
 	// Close the connection once no longer needed
 	err = client.Disconnect(context.TODO())
