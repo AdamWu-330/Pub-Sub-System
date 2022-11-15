@@ -16,9 +16,23 @@ import (
 )
 
 type Response struct {
-	ID        string  `json:"ID"`
-	Latitude  float32 `json:"Latitude"`
-	Longitude float32 `json:"Longitude"`
+	ID                 string  `bson:"ID"`
+	Organization       string  `bson:"Organization"`
+	RoadwayName        string  `bson:"RoadwayName"`
+	DirectionOfTravel  string  `bson:"DirectionOfTravel"`
+	Reported           float32 `bson:"Reported"`
+	LastUpdated        float32 `bson:"LastUpdated"`
+	StartDate          float32 `bson:"StartDate"`
+	PlannedEndDate     float32 `bson:"PlannedEndDate"`
+	LanesAffected      string  `bson:"LanesAffected"`
+	Latitude           float32 `bson:"Latitude"`
+	Longitude          float32 `bson:"Longitude"`
+	LatitudeSecondary  float32 `bson:"LatitudeSecondary"`
+	LongitudeSecondary float32 `bson:"LongitudeSecondary"`
+	EventType          string  `bson:"EventType"`
+	IsFullClosure      bool    `bson:"IsFullClosure"`
+	LinkId             string  `bson:"LinkId"`
+	Comment            string  `bson:"Comment"`
 }
 
 func main() {
@@ -33,12 +47,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Println(string(responseData))
-	// fmt.Printf("type of response: %T\n", responseData)
 
 	responseObjects := make([]Response, 0, 0)
 	json.Unmarshal(responseData, &responseObjects)
-	//fmt.Println(len(responseObjects))
 
 	// save to mongodb
 	// Set client options
@@ -59,16 +70,17 @@ func main() {
 	fmt.Println("Connected to MongoDB!")
 
 	// Get a handle for your collection
-	collection := client.Database("traffic").Collection("events")
+	collection := client.Database("cvst_pubsub").Collection("event")
 
 	for i := 0; i < len(responseObjects); i++ {
 		// Insert a single document
-		insertResult, err := collection.InsertOne(context.TODO(), responseObjects[i])
+		_, err := collection.InsertOne(context.TODO(), responseObjects[i])
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 	}
+
+	fmt.Println("finished inserting to event collection")
 
 	// Close the connection once no longer needed
 	err = client.Disconnect(context.TODO())
