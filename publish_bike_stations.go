@@ -36,16 +36,15 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	err = ch.ExchangeDeclare(
-		"traffic_topic", // name
-		"topic",         // type
+	q, err := ch.QueueDeclare(
+		"bike_stations", // name
 		true,            // durable
-		false,           // auto-deleted
-		false,           // internal
+		false,           // delete when unused
+		false,           // exclusive
 		false,           // no-wait
 		nil,             // arguments
 	)
-	failOnError(err, "Failed to declare an exchange")
+	failOnError(err, "Failed to declare a queue")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -56,10 +55,10 @@ func main() {
 		failOnError(err, "Failed to convert to bytes")
 
 		err = ch.PublishWithContext(ctx,
-			"traffic_topic", // exchange
-			"bike_stations", // routing key
-			false,           // mandatory
-			false,           // immediate
+			"",     // exchange
+			q.Name, // routing key
+			false,  // mandatory
+			false,  // immediate
 			amqp.Publishing{
 				ContentType: "text/plain",
 				Body:        content,
