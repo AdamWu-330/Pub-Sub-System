@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,14 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-func decode_from_bytes(content []byte) (error, fetch_source.Detail) {
-	var obj fetch_source.Detail
-	buf := bytes.NewBuffer(content)
-	decoder := json.NewDecoder(buf)
-	err := decoder.Decode(&obj)
-	return err, obj
-}
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -84,7 +75,7 @@ func main() {
 
 	go func() {
 		for d := range msgs {
-			var obj fetch_source.Detail
+			var obj fetch_source.Detail_station
 			json.Unmarshal(d.Body, &obj)
 
 			_, err := collection.InsertOne(context.TODO(), obj)

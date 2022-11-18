@@ -11,15 +11,15 @@ import (
 	"os"
 )
 
-type Response struct {
-	Data Station `bson:"data"`
+type Response1 struct {
+	Data Station1 `bson:"data"`
 }
 
-type Station struct {
-	Stations []Detail `bson:"stations"`
+type Station1 struct {
+	Stations []Detail_station `bson:"stations"`
 }
 
-type Detail struct {
+type Detail_station struct {
 	Station_id             string   `bson:"station_id"`
 	Name                   string   `bson:"name"`
 	Physical_configuration string   `bson:"physical_configuration"`
@@ -36,7 +36,7 @@ type Detail struct {
 	Ride_code_support      bool     `bson:"_ride_code_support"`
 }
 
-func Fetch_source_bike_station() []Detail {
+func Fetch_source_bike_station() []Detail_station {
 	response, err := http.Get("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information")
 
 	if err != nil {
@@ -49,10 +49,10 @@ func Fetch_source_bike_station() []Detail {
 		log.Fatal(err)
 	}
 
-	var response_obj Response
+	var response_obj Response1
 	json.Unmarshal(raw_response, &response_obj)
 
-	var station_objs = make([]Detail, len(response_obj.Data.Stations))
+	var station_objs = make([]Detail_station, len(response_obj.Data.Stations))
 	station_objs = response_obj.Data.Stations
 
 	return station_objs

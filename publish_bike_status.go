@@ -11,7 +11,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func encode_to_bytes(obj fetch_source.Detail_station) (error, []byte) {
+func encode_to_bytes(obj fetch_source.Detail_status) (error, []byte) {
 	var buf bytes.Buffer
 	encoder := json.NewEncoder(&buf)
 	err := encoder.Encode(obj)
@@ -25,7 +25,7 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	station_objs := fetch_source.Fetch_source_bike_station()
+	status_objs := fetch_source.Fetch_source_bike_status()
 
 	// RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
@@ -37,12 +37,12 @@ func main() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"bike_stations", // name
-		true,            // durable
-		false,           // delete when unused
-		false,           // exclusive
-		false,           // no-wait
-		nil,             // arguments
+		"bike_status", // name
+		true,          // durable
+		false,         // delete when unused
+		false,         // exclusive
+		false,         // no-wait
+		nil,           // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
@@ -50,8 +50,8 @@ func main() {
 	defer cancel()
 
 	// publish
-	for i := 0; i < len(station_objs); i++ {
-		err, content := encode_to_bytes(station_objs[i])
+	for i := 0; i < len(status_objs); i++ {
+		err, content := encode_to_bytes(status_objs[i])
 		failOnError(err, "Failed to convert to bytes")
 
 		err = ch.PublishWithContext(ctx,
