@@ -21,7 +21,6 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	// connect to mongodb
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
