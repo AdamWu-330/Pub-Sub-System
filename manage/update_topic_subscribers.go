@@ -19,7 +19,8 @@ type Topic_subscribers struct {
 
 func Update_topic_subscribers() {
 	t1 := Topic_subscribers{"bike_stations", []string{"adam", "angela", "alex"}}
-	t2 := Topic_subscribers{"bike_status", []string{"alex"}}
+	//t2 := Topic_subscribers{"bike_status", []string{"alex"}}
+	t2 := Topic_subscribers{"camera", []string{"adam"}}
 
 	// connecting to mongodb
 	client_options := options.Client().ApplyURI("mongodb://localhost:27017")
