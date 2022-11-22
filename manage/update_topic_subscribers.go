@@ -1,9 +1,11 @@
+// https://www.mongodb.com/blog/post/mongodb-go-driver-tutorial
 package manage
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,68 +20,71 @@ type Topic_subscribers struct {
 func Update_topic_subscribers() {
 	t1 := Topic_subscribers{"bike_stations", []string{"adam", "angela", "alex"}}
 	t2 := Topic_subscribers{"bike_status", []string{"alex"}}
-	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
-	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	// connecting to mongodb
+	client_options := options.Client().ApplyURI("mongodb://localhost:27017")
+
+	client, err := mongo.Connect(context.TODO(), client_options)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	fmt.Println("successfully connected to MongoDB!")
 
-	// Get a handle for your collection
+	// define collection
 	collection := client.Database("cvst_pubsub").Collection("topic_subscibers")
 
 	_, err2 := collection.InsertOne(context.TODO(), t1)
 	if err2 != nil {
-		log.Fatal(err2)
+		fmt.Println(err2.Error())
+		os.Exit(1)
 	}
 
 	_, err3 := collection.InsertOne(context.TODO(), t2)
 	if err3 != nil {
-		log.Fatal(err3)
+		fmt.Println(err3.Error())
+		os.Exit(1)
 	}
 
 	fmt.Println("finished updating topic_subscibers")
 
-	// Close the connection once no longer needed
+	// closing connection
 	err = client.Disconnect(context.TODO())
 
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Println("Connection to MongoDB closed.")
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
+
+	fmt.Println("disconnected from MongoDB")
 }
 
 func Get_subscribers_of_topic(topic string) []string {
 	// fetch topic-subscribers info from db
-	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client_options := options.Client().ApplyURI("mongodb://localhost:27017")
 
-	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	// connecting to mongodb
+	client, err := mongo.Connect(context.TODO(), client_options)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	//fmt.Println("Connected to MongoDB!")
+	fmt.Println("successfully connected to MongoDB!")
 
-	// Get a handle for your collection
+	// define collection
 	collection := client.Database("cvst_pubsub").Collection("topic_subscibers")
 
 	opt := options.FindOne()
@@ -88,9 +93,19 @@ func Get_subscribers_of_topic(topic string) []string {
 
 	err2 := collection.FindOne(context.TODO(), bson.D{{"topic", topic}}, opt).Decode(&res)
 	if err2 != nil {
-		log.Fatal(err2)
+		fmt.Println(err2.Error())
+		os.Exit(1)
 	}
-	// fmt.Println(res.Topic)
-	// fmt.Println(res.Subscribers)
+
+	// closing connection
+	err = client.Disconnect(context.TODO())
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Println("disconnected from MongoDB")
+
 	return res.Subscribers
 }

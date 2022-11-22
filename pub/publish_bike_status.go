@@ -1,10 +1,13 @@
+// reference: https://www.rabbitmq.com/tutorials/tutorial-two-go.html, https://www.rabbitmq.com/tutorials/tutorial-five-go.html
 package main
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/AdamWu-330/Pub-Sub-System/fetch_source"
@@ -27,79 +30,118 @@ func failOnError(err error, msg string) {
 func main() {
 	status_objs := fetch_source.Fetch_source_bike_status()
 
-	// RabbitMQ
+	// connecting to RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
 		"bike_status", // name
 		true,          // durable
-		false,         // delete when unused
+		false,         // autoDelete
 		false,         // exclusive
-		false,         // no-wait
-		nil,           // arguments
+		false,         // noWait
+		nil,           // args
 	)
-	failOnError(err, "Failed to declare a queue")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	// publish
+	// publish to work queues for saving to db
 	for i := 0; i < len(status_objs); i++ {
 		err, content := encode_to_bytes(status_objs[i])
-		failOnError(err, "Failed to convert to bytes")
+
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 
 		err = ch.PublishWithContext(ctx,
 			"",     // exchange
 			q.Name, // routing key
 			false,  // mandatory
 			false,  // immediate
-			amqp.Publishing{
+			amqp.Publishing{ // messages to publish
 				ContentType: "text/plain",
 				Body:        content,
 			})
-		failOnError(err, "Failed to publish a message")
 
-		log.Printf(" [x] Sent %s", content)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		log.Printf("Successfully published: %s", content)
 	}
 
 	// pub-sub, use another channel
 	ch2, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	defer ch2.Close()
 
 	err = ch2.ExchangeDeclare(
 		"bike_status_exchange", // name
-		"topic",                // type
+		"topic",                // kind
 		true,                   // durable
-		false,                  // auto-deleted
+		false,                  // autoDelete
 		false,                  // internal
-		false,                  // no-wait
-		nil,                    // arguments
+		false,                  // noWait
+		nil,                    // args
 	)
-	failOnError(err, "Failed to declare an exchange")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 
 	// publish to exchange
 	for i := 0; i < len(status_objs); i++ {
 		err, content := encode_to_bytes(status_objs[i])
-		failOnError(err, "Failed to convert to bytes")
+
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 
 		err = ch.PublishWithContext(ctx,
 			"bike_status_exchange", // exchange
 			"bike_status_pubsub",   // routing key
 			false,                  // mandatory
 			false,                  // immediate
-			amqp.Publishing{
+			amqp.Publishing{ // messages to publish
 				ContentType: "text/plain",
 				Body:        content,
 			})
-		failOnError(err, "Failed to publish a message")
 
-		log.Printf(" [x] Sent %s", content)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		log.Printf("successfully sent %s", content)
 	}
 }

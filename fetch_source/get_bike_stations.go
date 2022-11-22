@@ -1,12 +1,10 @@
 // reference: https://tutorialedge.net/golang/consuming-restful-api-with-go/
-// https://www.mongodb.com/blog/post/mongodb-go-driver-tutorial
 package fetch_source
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 )
@@ -46,7 +44,8 @@ func Fetch_source_bike_station() []Detail_station {
 
 	raw_response, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err.Error())
+		os.Exit(1)
 	}
 
 	var response_obj Response1
