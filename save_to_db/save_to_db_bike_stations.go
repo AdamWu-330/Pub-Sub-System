@@ -86,7 +86,7 @@ func main() {
 
 	go func() {
 		for msg := range msgs {
-			var obj fetch_source.Detail_status
+			var obj fetch_source.Detail_station
 			json.Unmarshal(msg.Body, &obj)
 			fmt.Println(obj)
 

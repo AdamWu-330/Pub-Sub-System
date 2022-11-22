@@ -101,7 +101,7 @@ func main() {
 			// store which indices from responseObjects have the same content from the history collection, so no need to insert
 			insert := true
 
-			filter := bson.D{{"ID", obj.ID}}
+			filter := bson.D{{"Id", obj.Id}}
 			var result fetch_source.Camera
 			err := collection_history.FindOne(context.TODO(), filter).Decode(&result)
 

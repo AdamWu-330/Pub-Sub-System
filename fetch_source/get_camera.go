@@ -12,7 +12,7 @@ import (
 )
 
 type Camera struct {
-	ID                string  `bson:"ID"`
+	Id                string  `bson:"Id"`
 	Organization      string  `bson:"Organization"`
 	RoadwayName       string  `bson:"RoadwayName"`
 	DirectionOfTravel string  `bson:"DirectionOfTravel"`

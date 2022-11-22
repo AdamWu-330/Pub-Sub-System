@@ -136,7 +136,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		log.Printf("successfully sent %s", content)
+		//log.Printf("successfully sent %s", content)
 	}
 
 }

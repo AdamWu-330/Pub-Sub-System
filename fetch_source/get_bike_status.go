@@ -24,16 +24,16 @@ type Detail_status struct {
 		Mechanical int `bson:"mechanical"`
 		Ebike      int `bson:"ebike"`
 	} `bson:"num_bikes_available_types"`
-	Num_bikes_disabled  int     `bson:"num_bikes_disabled"`
-	Num_docks_available int     `bson:"num_docks_available"`
-	Num_docks_disabled  int     `bson:"num_docks_disabled"`
-	Last_reported       float32 `bson:"last_reported"`
-	Is_charging_station bool    `bson:"is_charging_station"`
-	Status              string  `bson:"status"`
-	Is_installed        int     `bson:"is_installed"`
-	Is_renting          int     `bson:"is_renting"`
-	Is_returning        int     `bson:"is_returning"`
-	Traffic             string  `bson:"traffic"`
+	Num_bikes_disabled  int    `bson:"num_bikes_disabled"`
+	Num_docks_available int    `bson:"num_docks_available"`
+	Num_docks_disabled  int    `bson:"num_docks_disabled"`
+	Last_reported       int    `bson:"last_reported"`
+	Is_charging_station bool   `bson:"is_charging_station"`
+	Status              string `bson:"status"`
+	Is_installed        int    `bson:"is_installed"`
+	Is_renting          int    `bson:"is_renting"`
+	Is_returning        int    `bson:"is_returning"`
+	Traffic             string `bson:"traffic"`
 }
 
 func Fetch_source_bike_status() []Detail_status {

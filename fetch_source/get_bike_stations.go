@@ -23,10 +23,11 @@ type Detail_station struct {
 	Physical_configuration string   `bson:"physical_configuration"`
 	Lat                    float32  `bson:"lat"`
 	Lon                    float32  `bson:"lon"`
-	Altitude               float32  `bson:"altitude"`
+	Altitude               int      `bson:"altitude"`
 	Address                string   `bson:"address"`
 	Capacity               int      `bson:"capacity"`
 	Is_charging_station    bool     `bson:"is_charging_station"`
+	Post_code              string   `bson:"post_code"`
 	Rental_methods         []string `bson:"rental_methods"`
 	Groups                 []string `bson:"groups"`
 	Obcn                   string   `bson:"obcn"`
