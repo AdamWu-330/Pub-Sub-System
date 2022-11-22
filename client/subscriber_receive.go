@@ -76,7 +76,7 @@ func main() {
 
 	go func() {
 		for msg := range msgs {
-			log.Printf("Successfully received: %s", msg.Body)
+			log.Printf("Successfully received: %s", msg.Body[:1000])
 		}
 	}()
 
