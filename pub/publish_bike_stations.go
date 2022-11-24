@@ -2,24 +2,14 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/AdamWu-330/Pub-Sub-System/fetch_source"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-func encode_to_bytes(obj fetch_source.Detail_station) (error, []byte) {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	err := encoder.Encode(obj)
-	return err, buf.Bytes()
-}
 
 func main() {
 	station_objs := fetch_source.Fetch_source_bike_station()
@@ -62,7 +52,7 @@ func main() {
 
 	// publish to work queues for saving to db
 	for i := 0; i < len(station_objs); i++ {
-		err, content := encode_to_bytes(station_objs[i])
+		err, content := fetch_source.Encode_to_bytes(station_objs[i])
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -114,7 +104,11 @@ func main() {
 
 	// publish to exchange
 	for i := 0; i < len(station_objs); i++ {
-		err, content := encode_to_bytes(station_objs[i])
+        var obj fetch_source.ClientMessage
+        obj.Data = station_objs[i]
+        obj.Type = "bikeStatus"		
+
+        err, content := fetch_source.Encode_to_bytes(obj)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -122,8 +116,8 @@ func main() {
 		}
 
 		err = ch.PublishWithContext(ctx,
-			"bike_stations_exchange", // exchange
-			"bike_stations_pubsub",   // routing key
+			"cvst_exchange", // exchange
+			"all.bike.bike_station",   // routing key
 			false,                    // mandatory
 			false,                    // immediate
 			amqp.Publishing{ // messages to publish

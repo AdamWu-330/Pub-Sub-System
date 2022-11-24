@@ -2,9 +2,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -13,13 +11,6 @@ import (
 	"github.com/AdamWu-330/Pub-Sub-System/fetch_source"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-func encode_to_bytes(obj fetch_source.Camera) (error, []byte) {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	err := encoder.Encode(obj)
-	return err, buf.Bytes()
-}
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -68,7 +59,7 @@ func main() {
 
 	// publish to work queues for saving to db
 	for i := 0; i < len(camera_objs); i++ {
-		err, content := encode_to_bytes(camera_objs[i])
+		err, content := fetch_source.Encode_to_bytes(camera_objs[i])
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -119,7 +110,11 @@ func main() {
 
 	// publish to exchange
 	for i := 0; i < len(camera_objs); i++ {
-		err, content := encode_to_bytes(camera_objs[i])
+        var obj fetch_source.ClientMessage
+        obj.Data = camera_objs[i]
+        obj.Type = "camera"		
+
+        err, content := fetch_source.Encode_to_bytes(obj)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -127,8 +122,8 @@ func main() {
 		}
 
 		err = ch.PublishWithContext(ctx,
-			"camera_exchange", // exchange
-			"camera_pubsub",   // routing key
+			"cvst_exchange", // exchange
+			"all.camera",   // routing key
 			false,             // mandatory
 			false,             // immediate
 			amqp.Publishing{ // messages to publish
