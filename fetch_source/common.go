@@ -1,10 +1,11 @@
 package fetch_source
+
 import (
 	"bytes"
 	"encoding/json"
 )
 
-type ClientMessage struct {
+type Client_message struct {
 	Type string
 	Data interface{}
 }

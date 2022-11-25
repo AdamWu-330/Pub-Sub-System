@@ -110,11 +110,11 @@ func main() {
 
 	// publish to exchange
 	for i := 0; i < len(camera_objs); i++ {
-        var obj fetch_source.ClientMessage
-        obj.Data = camera_objs[i]
-        obj.Type = "camera"		
+		var obj fetch_source.Client_message
+		obj.Data = camera_objs[i]
+		obj.Type = "camera"
 
-        err, content := fetch_source.Encode_to_bytes(obj)
+		err, content := fetch_source.Encode_to_bytes(obj)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -123,9 +123,9 @@ func main() {
 
 		err = ch.PublishWithContext(ctx,
 			"cvst_exchange", // exchange
-			"all.camera",   // routing key
-			false,             // mandatory
-			false,             // immediate
+			"all.camera",    // routing key
+			false,           // mandatory
+			false,           // immediate
 			amqp.Publishing{ // messages to publish
 				ContentType: "text/plain",
 				Body:        content,

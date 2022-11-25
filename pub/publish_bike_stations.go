@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -104,11 +105,11 @@ func main() {
 
 	// publish to exchange
 	for i := 0; i < len(station_objs); i++ {
-        var obj fetch_source.ClientMessage
-        obj.Data = station_objs[i]
-        obj.Type = "bikeStatus"		
+		var obj fetch_source.Client_message
+		obj.Data = station_objs[i]
+		obj.Type = "bikeStatus"
 
-        err, content := fetch_source.Encode_to_bytes(obj)
+		err, content := fetch_source.Encode_to_bytes(obj)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -116,10 +117,10 @@ func main() {
 		}
 
 		err = ch.PublishWithContext(ctx,
-			"cvst_exchange", // exchange
-			"all.bike.bike_station",   // routing key
-			false,                    // mandatory
-			false,                    // immediate
+			"cvst_exchange",         // exchange
+			"all.bike.bike_station", // routing key
+			false,                   // mandatory
+			false,                   // immediate
 			amqp.Publishing{ // messages to publish
 				ContentType: "text/plain",
 				Body:        content,
