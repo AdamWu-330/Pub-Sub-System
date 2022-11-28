@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AdamWu-330/Pub-Sub-System/manage"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -26,7 +25,11 @@ func main() {
 	defer conn.Close()
 
 	for _, topic := range os.Args[1:] {
-		subscribers := manage.Get_subscribers_of_topic(topic)
+		//subscribers := manage.Get_subscribers_of_topic(topic)
+		subscribers := []string{"axiao@123.com", "adamshuangwu@gmail.com"}
+
+		fmt.Println(topic)
+		fmt.Println(subscribers)
 
 		ch, err := conn.Channel()
 
@@ -37,17 +40,17 @@ func main() {
 
 		defer ch.Close()
 
-		exchange_name := fmt.Sprintf("%s_exchange", topic)
+		//exchange_name := fmt.Sprintf("%s_exchange", topic)
 
 		// decalre exchange for the current topic
 		err = ch.ExchangeDeclare(
-			exchange_name, // name
-			"topic",       // kind
-			true,          // durable
-			false,         // autoDelete
-			false,         // internal
-			false,         // noWait
-			nil,           // args
+			"cvst_exchange", // name
+			"topic",         // kind
+			true,            // durable
+			false,           // autoDelete
+			false,           // internal
+			false,           // noWait
+			nil,             // args
 		)
 
 		if err != nil {
@@ -73,14 +76,20 @@ func main() {
 			}
 
 			// bind the queue to the topic
-			routing_key := fmt.Sprintf("%s_pubsub", topic)
+			routing_key := fmt.Sprintf("all.%s", topic)
+
+			if topic == "bike" {
+				routing_key = fmt.Sprintf("all.bike.*")
+			}
+
+			//routing_key := fmt.Sprintf("all.%s", topic)
 
 			err = ch.QueueBind(
-				q.Name,        // name
-				routing_key,   // routing key
-				exchange_name, // exchange
-				false,         // noWait
-				nil,           // args
+				q.Name,          // name
+				routing_key,     // routing key
+				"cvst_exchange", // exchange
+				false,           // noWait
+				nil,             // args
 			)
 
 			if err != nil {

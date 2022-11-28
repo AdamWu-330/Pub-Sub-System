@@ -88,20 +88,20 @@ func main() {
 
 	defer ch2.Close()
 
-	err = ch2.ExchangeDeclare(
-		"bike_status_exchange", // name
-		"topic",                // kind
-		true,                   // durable
-		false,                  // autoDelete
-		false,                  // internal
-		false,                  // noWait
-		nil,                    // args
-	)
+	// err = ch2.ExchangeDeclare(
+	// 	"bike_status_exchange", // name
+	// 	"topic",                // kind
+	// 	true,                   // durable
+	// 	false,                  // autoDelete
+	// 	false,                  // internal
+	// 	false,                  // noWait
+	// 	nil,                    // args
+	// )
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// 	os.Exit(1)
+	// }
 
 	// publish to exchange
 	for i := 0; i < len(status_objs); i++ {

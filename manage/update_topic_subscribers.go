@@ -14,7 +14,8 @@ import (
 
 type Topic_subscribers struct {
 	Topic       string   `json:"topic"`
-	Subscribers []string `json:"subscribers"`
+	Description string   `json:"description"`
+	Users       []string `json:"users"`
 }
 
 func Update_topic_subscribers() {
@@ -86,7 +87,7 @@ func Get_subscribers_of_topic(topic string) []string {
 	fmt.Println("successfully connected to MongoDB!")
 
 	// define collection
-	collection := client.Database("cvst_pubsub").Collection("topic_subscibers")
+	collection := client.Database("cvst_pubsub").Collection("topics")
 
 	opt := options.FindOne()
 
@@ -107,6 +108,6 @@ func Get_subscribers_of_topic(topic string) []string {
 	}
 
 	fmt.Println("disconnected from MongoDB")
-
+	//fmt.Println(topic)
 	return res.Subscribers
 }
