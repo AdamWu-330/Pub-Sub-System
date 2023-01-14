@@ -12,6 +12,7 @@ import (
 
 	"github.com/AdamWu-330/Pub-Sub-System/fetch_source"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -90,7 +91,11 @@ func main() {
 			json.Unmarshal(msg.Body, &obj)
 			fmt.Println(obj)
 
-			_, err := collection.InsertOne(context.TODO(), obj)
+			opts := options.Update().SetUpsert(true)
+			filter := bson.D{{"station_id", obj.Station_id}}
+			update := bson.D{{"$set", obj}}
+
+			_, err := collection.UpdateOne(context.TODO(), filter, update, opts)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(1)

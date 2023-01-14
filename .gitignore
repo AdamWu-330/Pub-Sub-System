@@ -1,4 +1,4 @@
 test
 prev
-.exe
-.ps1
+*.exe
+*.ps1
