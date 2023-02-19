@@ -26,7 +26,7 @@ func main() {
 
 	for _, topic := range os.Args[1:] {
 		//subscribers := manage.Get_subscribers_of_topic(topic)
-		subscribers := []string{"axiao@123.com", "adamshuangwu@gmail.com"}
+		subscribers := []string{"axiao@123.com", "adamshuangwu@gmail.com", "adam"}
 
 		fmt.Println(topic)
 		fmt.Println(subscribers)

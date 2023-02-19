@@ -41,8 +41,9 @@ func main() {
 		}
 	}
 
-	// connecting to RabbitMQ
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	// connecting to RabbitMQ, use 5672 if publishing server is on local, use 5673 is publishing server is remote
+	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5673/")
 
 	if err != nil {
 		fmt.Print(err.Error())
