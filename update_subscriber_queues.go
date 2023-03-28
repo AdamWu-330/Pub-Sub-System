@@ -26,10 +26,11 @@ func main() {
 
 	for _, topic := range os.Args[1:] {
 		//subscribers := manage.Get_subscribers_of_topic(topic)
-		subscribers := []string{"axiao@123.com", "adamshuangwu@gmail.com", "adam"}
+		// subscribers := []string{"axiao@123.com", "adamshuangwu@gmail.com", "adam@gmail.com"}
+		subscribers := []string{"adam@gmail.com"}
 
-		fmt.Println(topic)
-		fmt.Println(subscribers)
+		// fmt.Println(topic)
+		// fmt.Println(subscribers)
 
 		ch, err := conn.Channel()
 

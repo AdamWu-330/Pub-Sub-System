@@ -94,7 +94,7 @@ func main() {
 
 	go func() {
 		for msg := range msgs {
-			log.Printf("Successfully received: %s", msg.Body[:100])
+			log.Printf("Successfully received from: %s", msg.RoutingKey)
 
 			// save to local by topic
 			if saving {
